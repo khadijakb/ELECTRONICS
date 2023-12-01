@@ -1,0 +1,111 @@
+import java.util.*;
+
+/**
+ * Represents a generic tree node with data of type T.
+ *
+ * @param <T> the type of data stored in the tree node.
+ */
+class TreeNode<T> {
+    T data;
+    List<TreeNode<T>> children;
+
+    /**
+     * Constructs a tree node with the given data.
+     *
+     * @param data the data to be stored in the tree node.
+     */
+    public TreeNode(T data) {
+        this.data = data;
+        this.children = new ArrayList<>();
+    }
+}
+
+/**
+ * Represents an expression tree and provides methods to build and display the
+ * arithmetic expression.
+ */
+public class ExpressionTree {
+
+    /**
+     * The main method to demonstrate building and displaying an expression tree.
+     *
+     * @param args the command-line arguments (not used in this program).
+     */
+    public static void main(String[] args) {
+        // Build the expression tree
+        TreeNode<String> root = buildExpressionTree();
+
+        // Display the arithmetic expression using inorder traversal
+        System.out.println("Arithmetic Expression: " + displayInorder(root));
+    }
+
+    /**
+     * Builds an example expression tree and returns its root node.
+     *
+     * @return the root node of the expression tree.
+     */
+    private static TreeNode<String> buildExpressionTree() {
+        TreeNode<String> root = new TreeNode<>("-");
+
+        // Left subtree
+        TreeNode<String> leftChild = new TreeNode<>("/");
+        leftChild.children.add(new TreeNode<>("*"));
+        leftChild.children.get(0).children.add(new TreeNode<>("+"));
+        leftChild.children.get(0).children.get(0).children.add(new TreeNode<>("3"));
+        leftChild.children.get(0).children.get(0).children.add(new TreeNode<>("1"));
+        leftChild.children.get(0).children.add(new TreeNode<>("3"));
+        leftChild.children.add(new TreeNode<>("+"));
+        leftChild.children.get(1).children.add(new TreeNode<>("-"));
+        leftChild.children.get(1).children.get(0).children.add(new TreeNode<>("9"));
+        leftChild.children.get(1).children.get(0).children.add(new TreeNode<>("5"));
+        leftChild.children.get(1).children.add(new TreeNode<>("2"));
+
+        // Right subtree
+        TreeNode<String> rightChild = new TreeNode<>("+");
+        rightChild.children.add(new TreeNode<>("*"));
+        rightChild.children.get(0).children.add(new TreeNode<>("3"));
+        rightChild.children.get(0).children.add(new TreeNode<>("-"));
+        rightChild.children.get(0).children.get(1).children.add(new TreeNode<>("7"));
+        rightChild.children.get(0).children.get(1).children.add(new TreeNode<>("4"));
+        rightChild.children.add(new TreeNode<>("6"));
+
+        // Set the root's children
+        root.children.add(leftChild);
+        root.children.add(rightChild);
+
+        return root;
+    }
+
+    /**
+     * Displays the arithmetic expression using inorder traversal.
+     *
+     * @param node the root node of the expression tree.
+     * @return the arithmetic expression as a string.
+     */
+    private static String displayInorder(TreeNode<String> node) {
+        if (node == null) {
+            return "";
+        }
+
+        StringBuilder expression = new StringBuilder();
+        if (node.children.size() > 0) {
+            expression.append("(");
+        }
+
+        for (int i = 0; i < node.children.size(); i++) {
+            expression.append(displayInorder(node.children.get(i)));
+
+            if (i < node.children.size() - 1) {
+                expression.append(node.data);
+            }
+        }
+
+        if (node.children.size() > 0) {
+            expression.append(")");
+        } else {
+            expression.append(node.data);
+        }
+
+        return expression.toString();
+    }
+}
