@@ -1,0 +1,352 @@
+import java.util.*;
+
+/**
+ * Represents a generic tree node with data of type T.
+ *
+ * @param <T> the type of data stored in the tree node.
+ */
+class TreeNode<T> {
+    T data;
+    List<TreeNode<T>> children;
+
+    /**
+     * Constructs a tree node with the given data.
+     *
+     * @param data the data to be stored in the tree node.
+     */
+    public TreeNode(T data) {
+        this.data = data;
+        this.children = new ArrayList<>();
+    }
+}
+
+/**
+ * Represents a tree operation class with various methods for manipulating and displaying a tree.
+ *
+ * @param <T> the type of data stored in the tree nodes.
+ */
+public class TreeOperation<T> {
+    private TreeNode<T> root;
+
+    /**
+     * Constructs a TreeOperation with a null root.
+     */
+    public TreeOperation() {
+        this.root = null;
+    }
+
+    /**
+     * Gets the root node of the tree.
+     *
+     * @return the root node of the tree.
+     */
+    public TreeNode<T> getRoot() {
+        return root;
+    }
+
+    /**
+     * Adds child nodes to the tree based on user input.
+     *
+     * @throws NodeNotFoundException if a parent node is not found during tree operations.
+     */
+    public void addChild() throws NodeNotFoundException {
+        Scanner sc = new Scanner(System.in);
+
+        if (root == null) {
+            System.out.print("Enter the root node data: ");
+            T rootNodeData = (T)sc.next();
+            root = new TreeNode<>(rootNodeData);
+        } else {
+            System.out.print("Enter the parent node data: ");
+            T parentData =(T) sc.next();
+            TreeNode<T> parentNode = findNode(root, parentData);
+            if (parentNode != null) {
+                System.out.println("Enter number of children");
+                int numOfChildren = sc.nextInt();
+
+                for (int i = 0; i < numOfChildren; i++) {
+                    System.out.println("Enter data for child " + (i + 1) + ":");
+                    T childNodeData = (T)sc.next();
+                    TreeNode<T> newChild = new TreeNode<>(childNodeData);
+                    parentNode.children.add(newChild);
+                }
+
+            } else {
+                throw new NodeNotFoundException("Parent not found");
+            }
+        }
+    }
+
+    /**
+     * Adds a child node with specified parent and child data to the tree.
+     *
+     * @param parentData the data of the parent node.
+     * @param childData  the data of the child node to be added.
+     * @throws NodeNotFoundException if the parent node is not found during tree operations.
+     */
+    public void addChild(T parentData, T childData) throws NodeNotFoundException {
+        if (root == null) {
+            // If the tree is empty, create a new tree with the child node as the root
+            root = new TreeNode<>(childData);
+        } else {
+            TreeNode parentNode = findNode(root, parentData);
+            if (parentNode != null) {
+                TreeNode newChild = new TreeNode(childData);
+                parentNode.children.add(newChild);
+            } else {
+                throw new NodeNotFoundException("Parent not found");
+            }
+        }
+    }
+
+    /**
+     * Displays the entire tree structure.
+     */
+    public void displayTree() {
+        displayTree(root, 0);
+    }
+
+    /**
+     * Displays the siblings of a given node.
+     *
+     * @param data the data of the node whose siblings are to be displayed.
+     */
+    public void displaySiblings(T data) {
+        TreeNode<T> currentNode = findNode(root, data);
+        if (currentNode != null && currentNode != root) {
+            TreeNode<T> parent = findParent(root, currentNode);
+            if (parent != null) {
+                for (TreeNode<T> sibling : parent.children) {
+                    if (sibling != currentNode) {
+                        System.out.print(sibling.data + " ");
+                    }
+                }
+            }
+        } else {
+            System.out.println("Node not found or has no siblings.");
+        }
+    }
+
+    /**
+     * Lists all the leaves in the tree.
+     */
+    public void listLeaves() {
+        List<T> leaves = new ArrayList<>();
+        listLeaves(root, leaves);
+        System.out.println("Leaves: " + leaves);
+    }
+
+    /**
+     * Lists all the internal nodes in the tree.
+     */
+    public void listInternalNodes() {
+        List<T> internalNodes = new ArrayList<>();
+        listInternalNodes(root, internalNodes);
+        System.out.println("Internal Nodes: " + internalNodes);
+    }
+
+    /**
+     * Lists all the edges in the tree.
+     */
+    public void listEdges() {
+        List<String> edges = new ArrayList<>();
+        listEdges(root, edges);
+        System.out.println("Edges: " + edges);
+    }
+
+    /**
+     * Displays the path from the root to a specified node.
+     *
+     * @param data the data of the node for which the path is to be displayed.
+     */
+    public void displayPath(T data) {
+        TreeNode<T> node = findNode(root, data);
+        if (node != null) {
+            List<T> path = getPath(root, node);
+            System.out.println("Path for " + data + ": " + path);
+        } else {
+            System.out.println("Node not found.");
+        }
+    }
+
+    /**
+     * Displays the depth of a specified node in the tree.
+     *
+     * @param data the data of the node for which the depth is to be displayed.
+     */
+    public void displayDepth(T data) {
+        TreeNode<T> node = findNode(root, data);
+        if (node != null) {
+            int depth = getDepth(root, node, 0);
+            System.out.println("Depth of " + data + ": " + depth);
+        } else {
+            System.out.println("Node not found.");
+        }
+    }
+
+    /**
+     * Displays the height of the tree.
+     */
+    public void displayHeight() {
+        int height = getHeight(root);
+        System.out.println("Height of the tree: " + height);
+    }
+
+    /**
+     * Displays the subtree rooted at a specified node.
+     *
+     * @param data the data of the node representing the root of the subtree to be displayed.
+     */
+    public void displaySubtree(T data) {
+        TreeNode<T> node = findNode(root, data);
+        if (node != null) {
+            displayTree(node, 0);
+        } else {
+            System.out.println("Node not found.");
+        }
+    }
+
+    private TreeNode<T> findNode(TreeNode<T> node, T data) {
+        if (node == null) {
+            return null;
+        }
+
+        if (node.data.equals(data)) {
+            return node;
+        }
+
+        for (TreeNode<T> child : node.children) {
+            TreeNode<T> result = findNode(child, data);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    private TreeNode<T> findParent(TreeNode<T> node, TreeNode<T> childNode) {
+        if (node == null) {
+            return null;
+        }
+
+        for (TreeNode<T> child : node.children) {
+            if (child == childNode) {
+                return node;
+            }
+
+            TreeNode<T> result = findParent(child, childNode);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    private void displayTree(TreeNode<T> node, int level) {
+        if (node == null) {
+            return;
+        }
+
+        for (int i = 0; i < level; i++) {
+            System.out.print("\t");
+        }
+        System.out.println(node.data);
+
+        for (TreeNode<T> child : node.children) {
+            displayTree(child, level + 1);
+        }
+    }
+
+    private void listLeaves(TreeNode<T> node, List<T> leaves) {
+        if (node == null) {
+            return;
+        }
+
+        if (node.children.isEmpty()) {
+            leaves.add(node.data);
+        }
+
+        for (TreeNode<T> child : node.children) {
+            listLeaves(child, leaves);
+        }
+    }
+
+    private void listInternalNodes(TreeNode<T> node, List<T> internalNodes) {
+        if (node == null) {
+            return;
+        }
+
+        if (!node.children.isEmpty()) {
+            internalNodes.add(node.data);
+        }
+
+        for (TreeNode<T> child : node.children) {
+            listInternalNodes(child, internalNodes);
+        }
+    }
+
+    private void listEdges(TreeNode<T> node, List<String> edges) {
+        if (node == null) {
+            return;
+        }
+
+        for (TreeNode<T> child : node.children) {
+            edges.add("(" + node.data + ", " + child.data + ")");
+            listEdges(child, edges);
+        }
+    }
+
+    private List<T> getPath(TreeNode<T> root, TreeNode<T> node) {
+        List<T> path = new ArrayList<>();
+        TreeNode<T> current = node;
+
+        while (current != null) {
+            path.add(current.data);
+            current = findParent(root, current);
+        }
+
+        Collections.reverse(path);
+        return path;
+    }
+
+    private int getDepth(TreeNode<T> root, TreeNode<T> node, int depth) {
+        if (root == null) {
+            return -1;
+        }
+
+        if (root == node) {
+            return depth;
+        }
+
+        for (TreeNode<T> child : root.children) {
+            int childDepth = getDepth(child, node, depth + 1);
+            if (childDepth != -1) {
+                return childDepth;
+            }
+        }
+
+        return -1;
+    }
+
+    private int getHeight(TreeNode<T> node) {
+        if (node == null) {
+            return 0;
+        }
+
+        int maxHeight = 0;
+        for (TreeNode<T> child : node.children) {
+            int childHeight = getHeight(child);
+            if (childHeight > maxHeight) {
+                maxHeight = childHeight;
+            }
+        }
+
+        return maxHeight + 1;
+    }
+
+}
+
+
+
