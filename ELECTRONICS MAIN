@@ -1,0 +1,63 @@
+import java.util.*;
+
+/**
+ * A simple program for managing an electronic tree structure.
+ */
+public class Electronics {
+
+    /**
+     * The main method to demonstrate adding child nodes to a tree and displaying the final tree structure.
+     *
+     * @param args the command-line arguments (not used in this program).
+     * @throws NodeNotFoundException if a node is not found during tree operations.
+     */
+    public static void main(String[] args) throws NodeNotFoundException {
+        TreeOperation<String> treeOperations = new TreeOperation<>();
+        Scanner scanner = new Scanner(System.in);
+
+        // Adding nodes to the tree based on user input
+        while (true) {
+            System.out.println("Do you want to add a child node? (y/n)");
+            String userInput = scanner.next().toLowerCase();
+
+            if (userInput.equals("n")) {
+                break;
+            }
+            try {
+                treeOperations.addChild();
+            } catch (NodeNotFoundException ex) {
+                System.out.println("Error: " + ex.getMessage());
+            }
+        }
+
+        // Displaying the final tree structure
+        System.out.println("Final Tree Structure:");
+
+        displayTreeWithNumbering(treeOperations.getRoot(), "");
+    }
+
+    /**
+     * Displays the tree structure with numbering.
+     *
+     * @param node      the root node of the tree.
+     * @param numbering the numbering string for the current node.
+     *                  It represents the path to the current node in the tree.
+     *                  For example, "1.2.3" means the third child of the second child of the first node.
+     *                  An empty string represents the root node.
+     * @param <T>       the type of data stored in the tree node.
+     */
+    private static <T> void displayTreeWithNumbering(TreeNode<T> node, String numbering) {
+        if (node == null) {
+            return;
+        }
+
+        System.out.println(numbering + node.data);
+
+        for (int i = 0; i < node.children.size(); i++) {
+            String childNumbering = numbering + (i + 1) + ".";
+            displayTreeWithNumbering(node.children.get(i), childNumbering);
+        }
+    }
+}
+
+    
